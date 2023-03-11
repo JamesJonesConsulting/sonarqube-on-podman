@@ -50,8 +50,8 @@ jobs:
         name: Combine Tag list with options env variable in YAML format
         run: |
           matrix_options=$(echo -n "${{ env.matrix_options}}" | yq -r -o=json -)
-          echo -e '${{ steps.github-tags.outputs.tags }}' | jq '.tags[]' -r
-          cut -d '.' -f 1-3 <(echo -e "${{ steps.github-tags.outputs.tags }}") | uniq
+          cut -d '.' -f 1-3 <(echo -e '${{ steps.github-tags.outputs.tags }}' | jq '.tags[]' -r) | uniq
+          # cut -d '.' -f 1-3 <(echo -e "${{ steps.github-tags.outputs.tags }}") | uniq
           matrix=$(jq -c --slurp 'add' <(echo '${{ steps.github-tags.outputs.tags }}') <(echo "$matrix_options"))
           echo $matrix
           echo "matrix=$matrix" >> $GITHUB_OUTPUT
