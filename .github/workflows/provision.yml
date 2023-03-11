@@ -49,6 +49,7 @@ jobs:
       - id: github-reduced-tags
         name: Reduce the tags to just the unique 3 octet tags
         run: |
+          cut -d '.' -f 1-3 <(echo -e '${{ steps.github-tags.outputs.tags }}' | jq '.tags[]' -r) | uniq
           TAGS=( $(cut -d '.' -f 1-3 <(echo -e '${{ steps.github-tags.outputs.tags }}' | jq '.tags[]' -r) | uniq) )
           echo $TAGS
           echo "tags=$(jq -s '{tags: .}' <<< "${TAGS[@]}" | jq -c .)" >> $GITHUB_OUTPUT
