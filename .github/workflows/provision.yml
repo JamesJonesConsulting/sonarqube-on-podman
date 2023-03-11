@@ -6,14 +6,26 @@ on:
       deploy-group:
         required: true
         type: string
-        description: Select the Wordpress instance to deploy
+        description: Select the SonarQube group to deploy
         default: sonarqube
+      deploy-version:
+        required: true
+        type: string
+        description: Select the SonarQube instance to deploy
+        default: 8.9.10
 
 env:
   NEXUS_DOCKER_USER: ${{ secrets.HOME_NEXUS_DOCKER_USER }}
+  NEXUS_REGISTRY: nexus.jamesjonesconsulting.com:5443
+  NEXUS_PROXY_REGISTRY: nexus.jamesjonesconsulting.com:5444
+  version_filter: 8
+  version_count: 10
+  matrix_options: |
+    type:
+      - debian-11
 
 jobs:
-  deploy-wordpress:
+  matrix:
     runs-on: [ self-hosted, medium, build ]
     container:
       image: nexus.jamesjonesconsulting.com:5443/jamesjonesconsulting/podman-dind-like:latest
@@ -21,8 +33,67 @@ jobs:
       credentials:
         username: ${{ secrets.HOME_NEXUS_DOCKER_USER }}
         password: ${{ secrets.HOME_NEXUS_DOCKER_PASSWORD }}
+    outputs:
+      matrix: ${{ steps.set-matrix.outputs.matrix }}
     steps:
       - name: Check out repository code
         uses: actions/checkout@v3
         with:
           ref: ${{ github.event.workflow_run.head_branch }}
+      - id: github-tags
+        uses: JamesJonesConsulting/github.tags.action@main
+        with:
+          github-repo: 'SonarSource/sonarqube'
+          github-max-tags: 3
+          github-filter-tags: 8
+      - id: set-matrix
+        name: Combine Tag list with options env variable in YAML format
+        run: |
+          matrix_options=$(echo -n "${{ env.matrix_options}}" | yq -r -o=json -)
+          matrix=$(jq -c --slurp 'add' <(echo '${{ steps.github-tags.outputs.tags }}') <(echo "$matrix_options"))
+          echo $matrix
+          echo "matrix=$matrix" >> $GITHUB_OUTPUT
+
+
+      # - name: Docker Login
+      #   uses: azure/docker-login@v1
+      #   with:
+      #     login-server: ${{ env.NEXUS_REGISTRY }}
+      #     username: ${{ secrets.HOME_NEXUS_DOCKER_USER }}
+      #     password: ${{ secrets.HOME_NEXUS_DOCKER_PASSWORD }}
+      # - name: Docker Login
+      #   uses: azure/docker-login@v1
+      #   with:
+      #     login-server: ${{ env.NEXUS_PROXY_REGISTRY }}
+      #     username: ${{ secrets.HOME_NEXUS_DOCKER_USER }}
+      #     password: ${{ secrets.HOME_NEXUS_DOCKER_PASSWORD }}
+      # # This requires docker buildx which podman doesn't support
+      # # - name: Extract metadata (tags, labels) for Docker
+      # #   id: meta
+      # #   uses: docker/metadata-action@98669ae865ea3cffbcbaa878cf57c20bbf1c6c38
+      # #   with:
+      # #     images: ${{ matrix.registry }}/${{ env.IMAGE_NAME }}      
+      # # - name: Build and push Docker images
+      # #   uses: docker/build-push-action@ad44023a93711e3deb337508980b4b5e9bcdc5dc
+      # #   with:
+      # #     context: .
+      # #     push: true
+      # #     tags: ${{ steps.meta.outputs.tags }}
+      # #     labels: ${{ steps.meta.outputs.labels }}    
+      # - id: container-tag
+      #   uses: JamesJonesConsulting/github.image-tag-from-git.action@main
+      # - name: Build the Docker image
+      #   run: |
+      #     IMAGE_NAME=$(echo "${{ github.repository }}" | tr '[:upper:]' '[:lower:]') 
+      #     podman build --target base --file Dockerfile.bitnami --tag "${{ env.NEXUS_REGISTRY }}/$IMAGE_NAME/${{ matrix.type }}/${{ matrix.tags }}:${{ steps.container-tag.outputs.tag }}" --build-arg ARTIFACTORY=${{ env.NEXUS_PROXY_REGISTRY }} --build-arg TAG_VERSION=${{ matrix.tags }} --build-arg TAG_TYPE=${{ matrix.type }}
+      #     podman rmi ${{ env.NEXUS_PROXY_REGISTRY }}/library/wordpress:${{ matrix.tags }}-${{ matrix.type }}
+      #     if [[ "$GITHUB_REF" =~ ^refs/pull.* ]]; then
+      #       echo "Pull requests do not get published. Only for testing"
+      #     else
+      #       podman logout ${{ env.NEXUS_PROXY_REGISTRY }}
+      #       podman push "${{ env.NEXUS_REGISTRY }}/$IMAGE_NAME/${{ matrix.type }}/${{ matrix.tags }}:${{ steps.container-tag.outputs.tag }}"
+      #       if [[ "$GITHUB_REF" =~ ^refs/tags.* ]]; then
+      #         podman tag "${{ env.NEXUS_REGISTRY }}/$IMAGE_NAME/${{ matrix.type }}/${{ matrix.tags }}:${{ steps.container-tag.outputs.tag }}" "${{ env.NEXUS_REGISTRY }}/$IMAGE_NAME/${{ matrix.type }}/${{ matrix.tags }}:latest"
+      #         podman push "${{ env.NEXUS_REGISTRY }}/$IMAGE_NAME/${{ matrix.type }}/${{ matrix.tags }}:latest"
+      #       fi
+      #     fi
