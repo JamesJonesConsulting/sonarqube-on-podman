@@ -79,7 +79,7 @@ jobs:
         password: ${{ secrets.HOME_NEXUS_DOCKER_PASSWORD }}
     strategy:
       fail-fast: false
-      max-parallel: 2
+      max-parallel: 1
       matrix: ${{fromJson(needs.matrix.outputs.matrix)}}
     steps:
       # Downloads a copy of the code in your repository before running CI tests
