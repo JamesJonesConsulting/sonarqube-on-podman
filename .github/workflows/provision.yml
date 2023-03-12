@@ -77,11 +77,13 @@ jobs:
       #     ANSIBLE_HOST_KEY_CHECKING: False
       #     ANSIBLE_TIMEOUT: 120
       #     TAG_VERSION: ${{ inputs.nexus-tag }}
-      #     OPENLDAP_TAG_VERSION: ${{ inputs.openldap-tag }}
       #     HOST_NAME: ${{ fromJson(steps.set-ansible-config.outputs.ansible_config).tls_name }}
-      #     LDAP_ROOT: ${{ vars.LDAP_ROOT }}
-      #     LDAP_USER: ${{ vars.LDAP_USER }}
-      #     LDAP_PASSWORD: ${{ secrets.LDAP_PASSWORD }}
-      #     LDAP_ADMIN_USER: ${{ vars.LDAP_ADMIN_USER }}
-      #     LDAP_ADMIN_PASSWORD: ${{ secrets.LDAP_ADMIN_PASSWORD }}
-
+      #     SONARQUBE_DATABASE_PASSWORD: ${{ secrets.SONARQUBE_DATABASE_PASSWORD }}
+      #     SONARQUBE_DATABASE_USER: ${{ secrets.SONARQUBE_DATABASE_USER }}
+      #     SONARQUBE_PASSWORD: ${{ secrets.SONARQUBE_PASSWORD }}
+      #     SONARQUBE_USERNAME: ${{ secrets.SONARQUBE_USERNAME }}
+      #     ALLOW_EMPTY_PASSWORD: ${{ vars.ALLOW_EMPTY_PASSWORD }}
+      #     SONARQUBE_DATABASE_HOST: ${{ vars.SONARQUBE_DATABASE_HOST }}
+      #     SONARQUBE_DATABASE_NAME: ${{ vars.SONARQUBE_DATABASE_NAME }}
+      #     SONARQUBE_DATABASE_PORT_NUMBER: ${{ vars.SONARQUBE_DATABASE_PORT_NUMBER }}
+      #     SONARQUBE_EMAIL: ${{ vars.SONARQUBE_EMAIL }}
