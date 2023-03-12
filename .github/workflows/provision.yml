@@ -37,7 +37,7 @@ jobs:
   matrix:
     runs-on: [ self-hosted, medium, build ]
     container:
-      image: $NEXUS_REGISTRY/jamesjonesconsulting/podman-dind-like:latest
+      image: nexus.jamesjonesconsulting.com:5444/jamesjonesconsulting/podman-dind-like:latest
       options: --userns=keep-id --group-add keep-groups --privileged --user root --security-opt seccomp=unconfined
       credentials:
         username: ${{ secrets.HOME_NEXUS_DOCKER_USER }}
@@ -72,7 +72,7 @@ jobs:
     timeout-minutes: 720
     runs-on: [ self-hosted, medium, build ]
     container:
-      image: $NEXUS_REGISTRY/jamesjonesconsulting/podman-dind-like:latest
+      image: nexus.jamesjonesconsulting.com:5444/jamesjonesconsulting/podman-dind-like:latest
       options: --userns=keep-id --group-add keep-groups --privileged --user root --security-opt seccomp=unconfined
       credentials:
         username: ${{ secrets.HOME_NEXUS_DOCKER_USER }}
