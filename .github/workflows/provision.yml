@@ -51,6 +51,7 @@ jobs:
         run: |
           TAGLIST=$(cut -d '.' -f 1-3 <(echo -n -e '${{ steps.github-tags.outputs.tags }}' | jq '.tags[]' -r))
           echo $TAGLIST
+          echo "Spacer"
           TAGS=( $(cut -d '.' -f 1-3 <(echo -n -e '${{ steps.github-tags.outputs.tags }}' | jq '.tags[]' -r)) )
           # TAGS=( $(cut -d '.' -f 1-3 <(echo -e '${{ steps.github-tags.outputs.tags }}' | jq '.tags[]' -r) | awk '!a[$0]++') )
           # TAGS=( $(cut -d '.' -f 1-3 <(echo -e '${{ steps.github-tags.outputs.tags }}' | jq '.tags[]' -r) | uniq) )
