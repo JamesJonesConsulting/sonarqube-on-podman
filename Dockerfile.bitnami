@@ -1,3 +1,3 @@
 ARG ARTIFACTORY
 ARG TAG_VERSION
-FROM ${ARTIFACTORY}/bitnami/sonarqube:${TAG_VERSION}
+FROM ${ARTIFACTORY}/bitnami/sonarqube:${TAG_VERSION} AS base
