@@ -50,7 +50,7 @@ jobs:
         username: ${{ secrets.HOME_NEXUS_DOCKER_USER }}
         password: ${{ secrets.HOME_NEXUS_DOCKER_PASSWORD }}
     outputs:
-      matrix: ${{ steps.github-reduced-tags.tags }}
+      matrix: ${{ steps.github-reduced-tags.matrix }}
     steps:
       - name: Check out repository code
         uses: actions/checkout@v3
@@ -68,10 +68,10 @@ jobs:
         name: Reduce the tags to just the unique 3 octet tags
         run: |
           TAGS=( $(cut -d '.' -f 1-3 <(echo -n -e '${{ steps.github-tags.outputs.tags }}' | jq '.tags[]' -r) | uniq | awk '{ print "\""$0"\""}') )
-          echo "tags=$(jq -s '{tags: .}' <<< "${TAGS[@]}" | jq -c .)" >> $GITHUB_OUTPUT
+          echo "matrix=$(jq -s '{tags: .}' <<< "${TAGS[@]}" | jq -c .)" >> $GITHUB_OUTPUT
       - name: Debug the tags
         run: |
-          echo -n "${{ steps.github-reduced-tags.outputs.tags }}"
+          echo -n "${{ steps.github-reduced-tags.outputs.matrix }}"
   provision:
     needs: [ matrix ]
     runs-on: [ self-hosted, medium, build ]
