@@ -139,7 +139,7 @@
         }
       }
     dest: /opt/nginx/sonarqube_server_block.conf
-    user: 1001
+    owner: 1001
     group: 1001
     mode: 0644
 
