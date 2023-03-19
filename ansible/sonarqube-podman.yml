@@ -6,9 +6,9 @@
   ignore_errors: true
 - name: Login to default registry and create ${XDG_RUNTIME_DIR}/containers/auth.json
   containers.podman.podman_login:
-    username: "${{ lookup('env', 'REPOSITORY_USERNAME') }}"
-    password: "${{ lookup('env', 'REPOSITORY_PASSWORD') }}"
-    registry: "${{ lookup('env', 'REPOSITORY') }}"
+    username: "{{ lookup('env', 'REPOSITORY_USERNAME') }}"
+    password: "{{ lookup('env', 'REPOSITORY_PASSWORD') }}"
+    registry: "{{ lookup('env', 'REPOSITORY') }}"
 # - name: Build SonarQube OCI Image
 #   containers.podman.podman_image:
 #     name: sonarqube
