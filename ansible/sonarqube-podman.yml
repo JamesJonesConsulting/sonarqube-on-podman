@@ -96,17 +96,17 @@
 #         -Djava.util.prefs.userRoot=/nexus-data/javaprefs
 #         -Djavax.net.ssl.keyStore=/nexus-data/etc/ssl/keystore.jks
 #         -Djavax.net.ssl.keyStorePassword=password
-#     volumes:
-#       - /opt/sonarqube://bitnami/sonarqube:Z
-#     generate_systemd:
-#       path: /etc/systemd/system/
-#       restart_policy: always
-#       time: 120
-#       names: true
-# - name: Reload systemd daemon
-#   ansible.builtin.systemd:
-#     daemon_reload: true
-# - name: Restart the service
-#   ansible.builtin.systemd:
-#     name: container-sonarqube
-#     state: restarted
+    volumes:
+      - /opt/sonarqube://bitnami/sonarqube:Z
+    generate_systemd:
+      path: /etc/systemd/system/
+      restart_policy: always
+      time: 120
+      names: true
+- name: Reload systemd daemon
+  ansible.builtin.systemd:
+    daemon_reload: true
+- name: Restart the service
+  ansible.builtin.systemd:
+    name: container-sonarqube
+    state: restarted
