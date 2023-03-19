@@ -1,0 +1,18 @@
+---
+- name: Enable services on the VM Host
+  ansible.posix.firewalld:
+    service: "{{ srv_name }}"
+    permanent: true
+    state: enabled
+  loop:
+    - https
+  loop_control:
+    loop_var: srv_name
+- name: Stop firewalld
+  ansible.builtin.service:
+    name: firewalld
+    state: stopped
+- name: Start firewalld
+  ansible.builtin.service:
+    name: firewalld
+    state: started
