@@ -87,7 +87,7 @@
       tag: sonarqube
       max_size: 10mb
     ports:
-      - "8080:8080"
+      - "127.0.0.1:8080:8080"
     expose:
       - "8080"
     env:
@@ -163,7 +163,7 @@
     expose:
       - "8443"
     volumes:
-      - /opt/letsencrypt-certs:/certs:Z
+      - /opt/letsencrypt-certs:/bitnami/certs:Z
       - /opt/nginx/sonarqube_server_block.conf:/opt/bitnami/nginx/conf/server_blocks/sonarqube_server_block.conf:ro
     generate_systemd:
       path: /etc/systemd/system/
