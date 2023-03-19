@@ -15,17 +15,6 @@
           - jam
     - name: Setup firewall
       ansible.builtin.include_tasks: firewall.yml
-    - name: Adding some folders for binding
-      ansible.builtin.file:
-        path: "{{ sqpath }}"
-        state: directory
-        owner: 1001
-        group: 1001
-        mode: 0755
-      loop:
-        - /opt/sonarqube
-      loop_control:
-        loop_var: sqpath
     # - name: Install certbot
     #   ansible.builtin.yum:
     #     name: certbot
@@ -69,14 +58,12 @@
     #       root: "{{ lookup('env', 'LDAP_ROOT') }}"
     #       tls:
     #         enabled: true
-    # - name: Setup the Nexus container tasks
-    #   ansible.builtin.include_tasks: nexus-podman.yml
-    #   vars:
-    #     container:
-    #       path: "{{ dck_path.path }}"
-    #       dockerfile: Dockerfile.nexus3
-    #       tag: "{{ lookup('env', 'TAG_VERSION') }}"
-    #       hostname: "{{ lookup('env', 'HOST_NAME') }}"
+    - name: Setup the Nexus container tasks
+      ansible.builtin.include_tasks: nexus-sonarqube.yml
+      vars:
+        container:
+          tag: "{{ lookup('env', 'TAG_VERSION') }}"
+          hostname: "{{ lookup('env', 'HOST_NAME') }}"
     # - name: Remove the temporary directory
     #   ansible.builtin.file:
     #     path: "{{ dck_path.path }}"
