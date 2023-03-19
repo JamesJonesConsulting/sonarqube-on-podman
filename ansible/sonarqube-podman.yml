@@ -146,6 +146,7 @@
   ansible.builtin.systemd:
     name: container-sonarqube
     state: restarted
+    enabled: true
 - name: Setup the Nginx server block for SSL
   ansible.builtin.copy:
     content: |
@@ -212,3 +213,4 @@
   ansible.builtin.systemd:
     name: container-nginx
     state: restarted
+    enabled: true
