@@ -1,4 +1,9 @@
 ---
+- name: Set http_can_network_connect flag on and keep it persistent across reboots
+  ansible.posix.seboolean:
+    name: httpd_can_network_connect
+    state: true
+    persistent: true
 - name: Enable services on the VM Host
   ansible.posix.firewalld:
     service: "{{ srv_name }}"
