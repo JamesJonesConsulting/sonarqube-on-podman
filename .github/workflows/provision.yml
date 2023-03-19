@@ -99,6 +99,7 @@ jobs:
       - name: Debug output
         run: |
           echo "${{ needs.matrix.outputs.matrix }}"
+          IMAGE_NAME=$(echo "${{ github.repository }}" | tr '[:upper:]' '[:lower:]') 
           echo "${{ env.NEXUS_PROXY_REGISTRY }}/$IMAGE_NAME/${{ matrix.tags }}:${{ steps.container-tag.outputs.tag }}"
       # - name: Run the bash shell inside a ssh agent for Ansible
       #   uses: JamesJonesConsulting/github.bash-in-ssh-agent.action@main
