@@ -4,30 +4,17 @@
     state: stopped
   register: sysd
   ignore_errors: true
-- name: Login to default registry and create ${XDG_RUNTIME_DIR}/containers/auth.json
-  containers.podman.podman_login:
+# - name: Login to default registry and create ${XDG_RUNTIME_DIR}/containers/auth.json
+#   containers.podman.podman_login:
+#     username: "{{ lookup('env', 'REPOSITORY_USERNAME') }}"
+#     password: "{{ lookup('env', 'REPOSITORY_PASSWORD') }}"
+#     registry: "{{ lookup('env', 'REPOSITORY') }}"
+- name: Pull SonarQube OCI Image
+  containers.podman.podman_image:
+    name: "{{ container.image }}"
+    force: true
     username: "{{ lookup('env', 'REPOSITORY_USERNAME') }}"
     password: "{{ lookup('env', 'REPOSITORY_PASSWORD') }}"
-    registry: "{{ lookup('env', 'REPOSITORY') }}"
-# - name: Build SonarQube OCI Image
-#   containers.podman.podman_image:
-#     name: sonarqube
-#     force: true
-#     path: "{{ container.path }}"
-#     build:
-#       cache: false
-#       force_rm: true
-#       format: oci
-#       extra_args: >-
-#         -f {{ container.dockerfile }}
-#         --pull
-#         --no-cache
-#         --target final
-#         --build-arg TAG_VERSION={{ container.tag }}
-#       annotation:
-#         app: sonarqube
-#         function: artifactory for various artifacts
-#         info: Provides artifactory storage and proxy of artifact repositories
 - name: Adding some folders for binding
   ansible.builtin.file:
     path: "{{ sqpath }}"
@@ -83,35 +70,25 @@
 #     path: /opt/nexus/etc/ssl/keystore.jks
 #     owner: 200
 #     group: 200
-# - name: Re-create sonarqube container with systemd service file generated
-#   containers.podman.podman_container:
-#     name: sonarqube
-#     image: localhost/sonarqube
-#     state: started
-#     recreate: true
-#     privileged: true
-#     hostname: "{{ container.hostname }}"
-#     cap_add:
-#       - ALL
-#     stop_timeout: 3600
-#     log_driver: journald
-#     log_opt:
-#       tag: sonarqube
-#       max_size: 10mb
-#     ports:
-#       - "443:8443"
-#       - "5443:5443"
-#       - "5444:5444"
-#       - "5445:5445"
-#       - "5446:5446"
-#       - "5447:5447"
-#     expose:
-#       - "8443"
-#       - "5443"
-#       - "5444"
-#       - "5445"
-#       - "5446"
-#       - "5447"
+- name: Re-create sonarqube container with systemd service file generated
+  containers.podman.podman_container:
+    name: sonarqube
+    image: "{{ container.image }}"
+    state: started
+    recreate: true
+    privileged: true
+    hostname: "{{ container.hostname }}"
+    cap_add:
+      - ALL
+    stop_timeout: 3600
+    log_driver: journald
+    log_opt:
+      tag: sonarqube
+      max_size: 10mb
+    ports:
+      - "443:8443"
+    expose:
+      - "8443"
 #     env:
 #       INSTALL4J_ADD_VM_PARAMS: >-
 #         -Xms4096m -Xmx4096m
