@@ -75,6 +75,7 @@ jobs:
   provision:
     needs: [ matrix ]
     runs-on: [ self-hosted, medium, build ]
+    environment: ${{ inputs.environment }}
     container:
       image: nexus.jamesjonesconsulting.com:5444/jamesjonesconsulting/podman-dind-like:latest
       options: --userns=keep-id --group-add keep-groups --privileged --user root --security-opt seccomp=unconfined
