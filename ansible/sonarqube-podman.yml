@@ -4,6 +4,12 @@
     state: stopped
   register: sysd
   ignore_errors: true
+- name: Stop any existing Nginx service
+  ansible.builtin.systemd:
+    name: container-nginx
+    state: stopped
+  register: sysd
+  ignore_errors: true
 - name: Pull SonarQube OCI Image
   containers.podman.podman_image:
     name: "{{ img }}"
@@ -170,3 +176,10 @@
       restart_policy: always
       time: 120
       names: true
+- name: Reload systemd daemon
+  ansible.builtin.systemd:
+    daemon_reload: true
+- name: Restart the service
+  ansible.builtin.systemd:
+    name: container-nginx
+    state: restarted
