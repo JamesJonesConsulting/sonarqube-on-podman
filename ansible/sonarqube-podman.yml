@@ -118,7 +118,7 @@
     content: |
       server {
         listen       0.0.0.0:8443 ssl;
-        server_name: {{ container.hostname }};
+        server_name {{ container.hostname }};
 
         ssl_certificate      bitnami/certs/{{ container.hostname.split('.')[1:] | join('.') }}.crt;
         ssl_certificate_key  bitnami/certs/{{ container.hostname.split('.')[1:] | join('.') }}.key;
