@@ -59,9 +59,10 @@
     #       tls:
     #         enabled: true
     - name: Setup the Nexus container tasks
-      ansible.builtin.include_tasks: nexus-sonarqube.yml
+      ansible.builtin.include_tasks: sonarqube-podman.yml
       vars:
         container:
+          image: "{{ lookup('env', 'IMAGE_NAME') }}"
           tag: "{{ lookup('env', 'TAG_VERSION') }}"
           hostname: "{{ lookup('env', 'HOST_NAME') }}"
     # - name: Remove the temporary directory

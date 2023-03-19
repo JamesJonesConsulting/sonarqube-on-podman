@@ -34,6 +34,8 @@
     - /opt/sonarqube
   loop_control:
     loop_var: sqpath
+- debug:
+    msg: "{{ container.image }}"
 # - name: Adding SSL Application Port
 #   ansible.builtin.ini_file:
 #     path: "/opt/nexus/etc/nexus.properties"
