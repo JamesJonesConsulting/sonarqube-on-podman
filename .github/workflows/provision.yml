@@ -96,7 +96,7 @@ jobs:
           echo "ansible_config=$(echo -n '${{ env.CONFIG_MAP}}' | yq -r -o=json - | jq '.${{ inputs.environment }}.${{ inputs.deploy-group }}' -c)" >> $GITHUB_OUTPUT
       - name: Debug output
         run: |
-          echo "${{ needs.matrix.outputs }}"
+          echo "${{ needs.matrix.outputs.matrix }}"
       # - name: Run the bash shell inside a ssh agent for Ansible
       #   uses: JamesJonesConsulting/github.bash-in-ssh-agent.action@main
       #   with:
