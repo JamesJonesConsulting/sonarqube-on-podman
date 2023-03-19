@@ -4,17 +4,17 @@
     state: stopped
   register: sysd
   ignore_errors: true
-# - name: Login to default registry and create ${XDG_RUNTIME_DIR}/containers/auth.json
-#   containers.podman.podman_login:
-#     username: "{{ lookup('env', 'REPOSITORY_USERNAME') }}"
-#     password: "{{ lookup('env', 'REPOSITORY_PASSWORD') }}"
-#     registry: "{{ lookup('env', 'REPOSITORY') }}"
 - name: Pull SonarQube OCI Image
   containers.podman.podman_image:
-    name: "{{ container.image }}"
+    name: "{{ img }}"
     force: true
     username: "{{ lookup('env', 'REPOSITORY_USERNAME') }}"
     password: "{{ lookup('env', 'REPOSITORY_PASSWORD') }}"
+  loop:
+    - "{{ container.image }}"
+    - "{{ lookup('env', 'REPOSITORY') }}/bitnami/nginx:latest"
+  loop_control:
+    loop_var: img
 - name: Adding some folders for binding
   ansible.builtin.file:
     path: "{{ sqpath }}"
@@ -24,6 +24,7 @@
     mode: 0755
   loop:
     - /opt/sonarqube
+    - /opt/nginx
   loop_control:
     loop_var: sqpath
 - debug:
@@ -86,9 +87,9 @@
       tag: sonarqube
       max_size: 10mb
     ports:
-      - "443:8443"
+      - "8080:8080"
     expose:
-      - "8443"
+      - "8080"
     env:
       SONARQUBE_DATABASE_USER: "{{ lookup('env', 'SONARQUBE_DATABASE_USER') }}"
       SONARQUBE_DATABASE_PASSWORD: "{{ lookup('env', 'SONARQUBE_DATABASE_PASSWORD') }}"
@@ -99,7 +100,7 @@
       SONARQUBE_DATABASE_PORT_NUMBER: "{{ lookup('env', 'SONARQUBE_DATABASE_PORT_NUMBER') }}"
       SONARQUBE_EMAIL: "{{ lookup('env', 'SONARQUBE_EMAIL') }}"
     volumes:
-      - /opt/sonarqube://bitnami/sonarqube:Z
+      - /opt/sonarqube:/bitnami/sonarqube:Z
     generate_systemd:
       path: /etc/systemd/system/
       restart_policy: always
@@ -112,3 +113,60 @@
   ansible.builtin.systemd:
     name: container-sonarqube
     state: restarted
+- name: Setup the Nginx server block for SSL
+  ansible.builtin.copy:
+    content: |
+      server {
+        listen       0.0.0.0:8443 ssl;
+        server_name: {{ container.hostname }};
+
+        ssl_certificate      bitnami/certs/{{ container.hostname.split('.')[1:] | join('.') }}.crt;
+        ssl_certificate_key  bitnami/certs/{{ container.hostname.split('.')[1:] | join('.') }}.key;
+
+        ssl_session_cache    shared:SSL:1m;
+        ssl_session_timeout  5m;
+
+        ssl_ciphers  HIGH:!aNULL:!MD5;
+        ssl_prefer_server_ciphers  on;
+
+        location / {
+            proxy_set_header X-Real-IP $remote_addr;
+            proxy_set_header HOST $http_host;
+            proxy_set_header X-NginX-Proxy true;
+
+            proxy_pass http://sonarqube:8080;
+            proxy_redirect off;
+        }
+      }
+    dest: /opt/nginx/sonarqube_server_block.conf
+    user: 1001
+    group: 1001
+    mode: 0644
+
+- name: Re-create nginx container with systemd service file generated
+  containers.podman.podman_container:
+    name: nginx
+    image: "{{ lookup('env', 'REPOSITORY') }}/bitnami/nginx:latest"
+    state: started
+    recreate: true
+    privileged: true
+    hostname: "{{ container.hostname }}"
+    cap_add:
+      - ALL
+    stop_timeout: 3600
+    log_driver: journald
+    log_opt:
+      tag: nginx
+      max_size: 10mb
+    ports:
+      - "443:8443"
+    expose:
+      - "8443"
+    volumes:
+      - /opt/letsencrypt-certs:/certs:Z
+      - /opt/nginx/sonarqube_server_block.conf:/opt/bitnami/nginx/conf/server_blocks/sonarqube_server_block.conf:ro
+    generate_systemd:
+      path: /etc/systemd/system/
+      restart_policy: always
+      time: 120
+      names: true
