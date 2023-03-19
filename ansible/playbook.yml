@@ -11,7 +11,8 @@
         name: jamesjonesconsulting.podman_socket_group_permissions.permissions_setup
       vars:
         podman_user_group: docker
-        podman_users: jam
+        podman_users:
+          - jam
     - name: Setup firewall
       ansible.builtin.include_tasks: firewall.yml
     - name: Adding some folders for binding
