@@ -186,7 +186,7 @@
     state: started
     recreate: true
     privileged: true
-    hostname: "{{ ['nginx'] + container.hostname.split('.')[1:] | join('.') }}"
+    hostname: "{{ 'nginx.' + (container.hostname.split('.')[1:] | join('.')) }}"
     cap_add:
       - ALL
     stop_timeout: 3600
