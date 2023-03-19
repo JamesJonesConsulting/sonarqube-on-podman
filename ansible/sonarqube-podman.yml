@@ -120,7 +120,7 @@
       tag: sonarqube
       max_size: 10mb
     ports:
-      - "127.0.0.1:9000:9000"
+      - "9000:9000"
     expose:
       - "9000"
     env:
@@ -169,7 +169,7 @@
 
             proxy_set_header X-Forwarded-For $remote_addr;
             proxy_set_header X-Forwarded-Proto https;
-            proxy_pass http://127.0.0.1:9000;
+            proxy_pass http://{ container.hostname }}:9000;
             proxy_redirect off;
         }
       }
