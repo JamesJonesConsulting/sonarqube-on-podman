@@ -1,6 +1,9 @@
 collections:
-- name: community.general
-- name: ansible.posix
-- name: community.docker
-- name: containers.podman
-- name: community.crypto
+  - name: https://github.com/JamesJonesConsulting/jamesjonesconsulting.podman_socket_group_permissions.git
+    type: git
+    version: develop
+  - name: community.general
+  - name: ansible.posix
+  - name: community.docker
+  - name: containers.podman
+  - name: community.crypto

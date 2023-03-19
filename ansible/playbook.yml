@@ -6,6 +6,12 @@
   vars_files:
     - ./vars/main.yml
   tasks:
+    - name: Setup Podman socket permissions
+      ansible.builtin.include_role:
+        name: jamesjonesconsulting.podman_socket_group_permissions.permissions_setup
+      vars:
+        podman_user_group: docker
+        podman_users: jam
     - name: Setup firewall
       ansible.builtin.include_tasks: firewall.yml
     - name: Adding some folders for binding
