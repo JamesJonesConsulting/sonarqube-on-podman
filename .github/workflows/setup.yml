@@ -13,9 +13,10 @@ on:
         type: choice
         description: Select the SonarQube major version to deploy
         options:
+          - '9'
           - '8'
           - '7'
-        default: '8'
+        default: '9'
       deploy-version-count:
         required: true
         type: string
@@ -27,7 +28,7 @@ env:
   NEXUS_DOCKER_USER: ${{ secrets.HOME_NEXUS_DOCKER_USER }}
   NEXUS_REGISTRY: nexus.jamesjonesconsulting.com:5443
   NEXUS_PROXY_REGISTRY: nexus.jamesjonesconsulting.com:5444
-  version_filter: 8
+  version_filter: 9
   version_count: 10
   matrix_options: |
     type:
