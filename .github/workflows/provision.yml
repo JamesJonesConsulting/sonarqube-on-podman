@@ -63,7 +63,7 @@ jobs:
         with:
           github-repo: 'SonarSource/sonarqube'
           github-max-tags: '1'
-          github-filter-tags: '8'
+          github-filter-tags: '9'
       - id: github-reduced-tags
         name: Reduce the tags to just the unique 3 octet tags
         run: |
