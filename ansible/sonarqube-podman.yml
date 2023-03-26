@@ -113,7 +113,7 @@
         listen       0.0.0.0:8443 ssl;
         server_name {{ container.hostname }};
 
-        ssl_certificate      bitnami/certs/{{ container.hostname.split('.')[1:] | join('.') }}.crt;
+        ssl_certificate      bitnami/certs/{{ container.hostname.split('.')[1:] | join('.') }}.all.pem;
         ssl_certificate_key  bitnami/certs/{{ container.hostname.split('.')[1:] | join('.') }}.key;
 
         ssl_session_cache    shared:SSL:1m;
