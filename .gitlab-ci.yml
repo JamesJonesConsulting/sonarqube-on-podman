@@ -1,0 +1,63 @@
+.base:
+  # See https://gitlab.com/gitlab-org/cluster-integration/cluster-applications/
+  variables:
+    DOCKER_AUTH_CONFIG: ${HOME_NEXUS_DOCKER_AUTH_CONFIG}
+  image: "$HOME_NEXUS_DOCKER_REGISTRY_PROXY/ymdllc/containers/podman-dind:latest"
+  timeout: 3h 30m
+
+.clone_ansible_resources:
+  variables: &clone_ansible_resources_variables
+    # INVENTORY_REPO: https://github.com/JamesJonesConsulting/AnsibleInventory.git
+    INVENTORY_REPO: https://gitlab.jamesjonesconsulting.com/ymdllc/architecture/config/AnsibleInventory.git
+    INVENTORY_BRANCH: main
+    # VAULT_REPO: https://github.com/JamesJonesConsulting/AnsibleVault.git
+    VAULT_REPO: https://gitlab.jamesjonesconsulting.com/ymdllc/architecture/config/AnsibleVault.git
+    VAULT_BRANCH: main
+  before_script: &clone_ansible_resources_before_script
+    # - cp "$PRIVATE_CLONE_NETRC" ~/.netrc; chmod 0600 ~/.netrc
+    # - git clone -b $INVENTORY_BRANCH --single-branch $INVENTORY_REPO inventory
+    # - git clone -b $VAULT_BRANCH --single-branch $VAULT_REPO vault
+    - git clone https://gitlab-ci-token:${CI_JOB_TOKEN}@${INVENTORY_REPO} inventory
+    - git clone https://gitlab-ci-token:${CI_JOB_TOKEN}@${VAULT_REPO} vault
+  script: &clone_ansible_resources_script
+    - eval $(ssh-agent); ssh-add <(echo "$HOME_SSH_PRIVATE_KEY" | base64 -d);
+    - echo -n "$HOME_ANSIBLE_VAULT_KEY" > .vault
+    - ansible-galaxy collection install -r requirements.yml
+
+stages:
+  - provision
+workflow:
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "web"'
+      when: always
+    - when: never
+variables:
+  SONARQUBE_GROUP:
+    value: sonarqube
+    options:
+      - sonarqube
+    description: Group of systems for Sonarqube instance
+
+
+maintain_vip:
+  stage: provision
+  extends: .base
+  tags:
+    - build
+    - medium
+  # environment:
+  #   name: production
+  #   action: prepare
+  variables:
+    <<: *clone_ansible_resources_variables
+    ANSIBLE_VAULT_VARIABLES_FILE: vault/home/sonarqube/sonarqube.yml
+  before_script:
+    - *clone_ansible_resources_before_script
+  script:
+    - *clone_ansible_resources_script
+    # - >-
+    #     ansible-playbook -i inventory/home/hosts
+    #     --vault-password-file .vault playbook.yml
+    #     -e "sonarqube_group=$SONARQUBE_GROUP"
+    #     -e "sonarqube_vaulted_variables=$ANSIBLE_VAULT_VARIABLES_FILE" -b
+    # - echo "$HOME_COMPOSER_ADMIN" > admin.json; cat admin.json
